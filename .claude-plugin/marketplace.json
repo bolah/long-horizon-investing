@@ -1,0 +1,20 @@
+{
+  "name": "long-horizon-investing",
+  "owner": {
+    "name": "Bence Olah",
+    "email": "bence.olah@gmail.com"
+  },
+  "metadata": {
+    "description": "Long-horizon equity research: 3/5/10-year Initiate/Add/Hold/Trim/Avoid verdicts with kill-criteria. US-first, EU degraded mode.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "long-horizon-investing",
+      "source": "./",
+      "description": "Long-horizon equity research with /analyze, /revisit, and /debate-only commands.",
+      "category": "finance",
+      "tags": ["investing", "equity-research", "dcf", "moat", "long-horizon"]
+    }
+  ]
+}
