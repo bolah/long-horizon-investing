@@ -27,18 +27,21 @@ export FRED_API_KEY=your_key            # free key, required for the fred MCP
 
 The three MCP servers (`edgar-mcp`, `yfinance-mcp`, `fred-mcp`) are declared in `.mcp.json` and auto-installed via `uvx`.
 
-## Architecture: a 4-stage subagent pipeline
+## Architecture: a 6-stage subagent pipeline
 
 `/analyze` (`commands/analyze.md`) is the orchestrator. It dispatches subagents via the Agent tool in staged fan-out/fan-in — **each stage must fully complete before the next starts**:
 
 ```
-Stage 1 (5 parallel)  fundamentals, moat, valuation, macro-secular, insider-ownership
-Stage 2 (2 parallel)  bull-researcher, bear-researcher
-Stage 3 (3 parallel)  aggressive-, conservative-, neutral-debator
-Stage 4 (1 sequential) synthesizer → verdict.json + report.md
+Stage 1   (6 parallel)  fundamentals, moat, valuation, macro-secular, insider-ownership, earnings-transcript
+Stage 1.5 (1 seq)       fact-checker → factcheck.json
+Stage 2   (2 parallel)  bull-researcher, bear-researcher
+Stage 3   (3 parallel)  aggressive-, conservative-, neutral-debator
+Stage 4   (1 sequential) synthesizer → verdict.json + report.md (first pass)
+Stage 5   (1 sequential) verdict-challenger → challenge.json
+Stage 6   (1 sequential) synthesizer revision pass → verdict.json + report.md (final)
 ```
 
-Agents **do not call each other**. They communicate only through JSON files in `research/{TICKER}/`. Each Stage-N agent reads the files written by Stage-(N-1) and appends its own. This file-passing contract is the backbone — when adding or reordering an agent, update both `commands/analyze.md` (dispatch + wait points) and the downstream agent's "Read all these files" list. The `synthesizer` reads all 10 prior files; `commands/debate-only.md` and `revisit.md` depend on the Stage-1 JSON already existing.
+Agents **do not call each other**. They communicate only through JSON files in `research/{TICKER}/`. Each Stage-N agent reads the files written by Stage-(N-1) and appends its own. This file-passing contract is the backbone — when adding or reordering an agent, update both `commands/analyze.md` (dispatch + wait points) and the downstream agent's "Read all these files" list. The `synthesizer` reads all 11 prior files (including `transcripts.json`); `commands/debate-only.md` and `revisit.md` depend on the Stage-1 JSON already existing.
 
 The plugin manifest **`.claude-plugin/plugin.json` in the InvestAgents copy lists every command/agent/skill explicitly — but in THIS repo it is minimal** (name/version/author only); commands, agents, and skills are discovered by directory convention (`commands/`, `agents/`, `skills/`). Keep that in mind: adding a file here is enough to register it.
 
@@ -59,6 +62,7 @@ EDGAR (insider, 13F, Form 4, full filings) is **US-only**. For EU tickers, agent
 
 The `synthesizer` issues one of **Initiate / Add / Hold / Trim / Avoid** with a `conviction` 1–10. Hard rules in `agents/synthesizer.md`:
 - `Initiate`/`Add` require `conviction ≥ 7`, ≥ 1 cited moat source, and insider data present (or `--accept-eu-degraded`).
+- `management_credibility_score ≤ 4` in `transcripts.json` soft-caps conviction at 7.
 - Valuation basis is **always vs. normalized 10-year earnings power, never TTM**.
 - 3–6 kill-criteria, each testable + lagging (observable fact, not stock price) + scheduled.
 - A `dissent_summary` recording what the bear/conservative argued that was overridden.

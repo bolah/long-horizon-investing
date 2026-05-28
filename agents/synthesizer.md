@@ -20,6 +20,7 @@ research/$TICKER/moat.json
 research/$TICKER/valuation.json
 research/$TICKER/macro.json
 research/$TICKER/insider.json
+research/$TICKER/transcripts.json      # earnings call transcript analysis (Stage 1); check management_credibility_score
 research/$TICKER/factcheck.json        # citation fact-check (Stage 1.5); may flag claims to exclude/down-weight
 research/$TICKER/bull.json
 research/$TICKER/bear.json
@@ -46,6 +47,9 @@ If `factcheck.json` flags a claim as a mismatch or unverifiable, exclude it or d
 - `Initiate` or `Add` requires ≥ 1 cited moat source in moat.json
 - `Initiate` or `Add` requires insider data present (insider.json not eu_mode_degraded) OR explicit `--accept-eu-degraded` flag
 - EU degraded mode: if `insider.json` shows `eu_mode_degraded: true` AND `--accept-eu-degraded` was not passed, you MUST set `verdict: "Avoid"` (or `"Hold"` if a position already exists) and write a `dissent_summary` that begins: "EU degraded mode: verdict downgraded from [intended verdict] because EDGAR insider/13F data is unavailable. Re-run with --accept-eu-degraded to override."
+- Transcript credibility gate: if `transcripts.json` is present and `management_credibility_score ≤ 4`, conviction is soft-capped at 7 regardless of other signals. Record in `dissent_summary`: "Management credibility score [N]/10 soft-caps conviction at 7 — guidance accuracy and/or tone consistency was weak across recent calls."
+- If `transcripts.json` contains any `forward_looking_events` with `magnitude: "material"`, surface them explicitly in `report.md` under a "Management Forward Guidance" section between Macro & Secular Context and Key Risks.
+- If `transcripts.json` contains non-empty `red_flags`, include them in the Key Risks section of `report.md`.
 
 ## What to produce
 

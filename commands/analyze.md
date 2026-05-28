@@ -19,14 +19,15 @@ Run a full long-horizon research pipeline for the given ticker.
 2. Create the output directory: `research/{TICKER}/`
 
 3. **Stage 1 — Analysts (run in parallel):**
-   Dispatch all 5 analyst subagents simultaneously using the Agent tool:
+   Dispatch all 6 analyst subagents simultaneously using the Agent tool:
    - `fundamentals` agent with `$TICKER` and horizon
    - `moat` agent with `$TICKER` and horizon
    - `valuation` agent with `$TICKER` and horizon
    - `macro-secular` agent with `$TICKER` and horizon
    - `insider-ownership` agent with `$TICKER` and horizon
+   - `earnings-transcript` agent with `$TICKER` and horizon
 
-   Wait for all 5 to complete before Stage 1.5.
+   Wait for all 6 to complete before Stage 1.5.
 
 4. **Stage 1.5 — Fact-check (sequential, single agent):**
    Run the `fact-checker` agent. It re-pulls the highest-impact numerical citations from the 5 analyst envelopes against their sources and writes `factcheck.json`. Wait for it to complete before Stage 2 — the debate must not be built on unverified numbers.
