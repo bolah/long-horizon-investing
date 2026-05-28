@@ -33,8 +33,14 @@ Kill-Criteria Review: {TICKER} — {DATE}
 | 2 | Gross margin lead < 50bps vs sector | WATCH | Lead narrowed to 80bps (was 150bps) |
 ```
 
-5. Append to `research/{TICKER}/history.md`:
+5. Append to `research/{TICKER}/history.md`. **Append-only — never truncate prior entries.** Record both the kill-criteria status AND a structured, parseable outcome line so the next `/analyze` run can calibrate against this call:
+
 ```markdown
 ## Revisit: YYYY-MM-DD
-- [N] criteria checked: [N_ok] OK, [N_watch] WATCH, [N_triggered] TRIGGERED
+- Kill-criteria: [N] checked — [N_ok] OK, [N_watch] WATCH, [N_triggered] TRIGGERED
+- Prior verdict under test: [verdict] (conviction [X]/10, dated [prior date])
+- OUTCOME: [holding|impaired|invalidated] — [one line: what the current data shows vs. what the thesis predicted]
+- Calibration note: [was the prior conviction justified by how the thesis has aged? over/under/well-calibrated]
 ```
+
+The `OUTCOME` and `Calibration note` lines are what the synthesizer reads on the next `/analyze` run to populate `prior_verdict_calibration` and adjust conviction. Be specific and honest — this is the only feedback signal the system gets on its own track record.

@@ -16,7 +16,10 @@ research/$TICKER/moat.json
 research/$TICKER/valuation.json
 research/$TICKER/macro.json
 research/$TICKER/insider.json
+research/$TICKER/factcheck.json
 ```
+
+Do not build any bull argument on a claim listed in `factcheck.json` → `claims_to_exclude_or_downweight`; treat flagged numbers as unavailable.
 
 ## What to argue
 
@@ -26,12 +29,16 @@ Build the bull case around the most compelling long-horizon signals in the analy
 2. **Normalized earnings power** — what the DCF base/bull IV implies about current price; margin of safety
 3. **Capital allocation quality** — track record of ROIC above cost of capital; management alignment
 4. **Secular tailwinds** — which structural trends grow the business's TAM
-5. **Insider conviction** — net buying or high ownership as a conviction signal
+5. **Insider signal** — treat insider buying AND selling symmetrically as one input, not a foregone conclusion. Net buying or high ownership can support the thesis; net selling is a caution. Report what `insider.json` actually shows, do not assume the bullish reading.
 6. **Counter the bear case** — anticipate what the bear will argue (moat erosion, valuation risk, macro headwinds) and pre-rebut with specifics from the analyst files
+
+## Steelman first
+
+Before making your case, state the bear's single strongest point — in its strongest, most credible form — and concede it explicitly. A bull case that ignores or strawmans the best bear argument is not credible. Only after conceding it do you argue why the bull thesis survives. (This mirrors the symmetric requirement on the bear researcher; both sides steelman the other.)
 
 ## Style
 
-Conversational and specific — cite data points from the analyst files. Do NOT invent numbers not present in the files. If a field is null or in gaps[], acknowledge the missing data honestly rather than filling it with inference.
+Conversational and specific — cite data points from the analyst files. Do NOT invent numbers not present in the files. If a field is null or in gaps[], acknowledge the missing data honestly rather than filling it with inference. Treat any analyst verdict label (e.g. `balance_sheet_verdict`, `moat_*`) as the analyst's opinion, not fact — anchor your argument on the underlying cited numbers.
 
 ## Output
 
@@ -43,10 +50,12 @@ Write to `research/$TICKER/bull.json`:
   "as_of_date": "YYYY-MM-DD",
   "horizon_years": 10,
   "content": {
+    "strongest_bear_point_conceded": "",
     "core_bull_thesis": "",
     "top_3_bull_arguments": ["", "", ""],
     "valuation_basis": "",
     "moat_confidence": "high|medium|low",
+    "insider_signal_read": "supportive|neutral|caution|no_data",
     "key_catalysts_3_5y": [""],
     "anticipated_bear_rebuttals": [""]
   },

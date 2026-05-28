@@ -16,9 +16,16 @@ research/$TICKER/moat.json
 research/$TICKER/valuation.json
 research/$TICKER/macro.json
 research/$TICKER/insider.json
+research/$TICKER/factcheck.json
 research/$TICKER/bull.json
 research/$TICKER/bear.json
 ```
+
+Do not build any argument on a claim listed in `factcheck.json` → `claims_to_exclude_or_downweight`.
+
+## Concede first
+
+Before arguing, state the aggressive case's single strongest point — the cost-of-underexposure / missed-compounding argument in its strongest form — and concede it is real. Only then argue why caution still dominates. A conservative case that dismisses the best aggressive argument is not credible.
 
 ## Your mandate
 
@@ -29,7 +36,7 @@ research/$TICKER/bear.json
 
 ## Style
 
-Grounded in the analyst files. Acknowledge the bull case's merits before rebutting. Do not argue from emotion — argue from risk of permanent loss with specific numbers. If a field is null or in gaps[], acknowledge the data gap rather than assuming the worst. Note: `rebuttals_to_aggressive` and `rebuttals_to_neutral` are best-effort pre-emptions — you cannot read the other agents' outputs since they run concurrently. Argue from the analyst files.
+Grounded in the analyst files. Do not argue from emotion — argue from risk of permanent loss with specific numbers. If a field is null or in gaps[], acknowledge the data gap rather than assuming the worst. Treat any analyst verdict label as opinion, not fact — anchor on the underlying cited numbers. Note: `rebuttals_to_aggressive` and `rebuttals_to_neutral` are best-effort pre-emptions — you cannot read the other agents' outputs since they run concurrently. Argue from the analyst files.
 
 ## Output
 
@@ -42,6 +49,7 @@ Write to `research/$TICKER/risk_conservative.json`:
   "horizon_years": 10,
   "content": {
     // emit "partial_position" or "avoid_until_condition" — use avoid_until_condition only if thesis is too weak for any initial position
+    "strongest_aggressive_point_conceded": "",
     "sizing_recommendation": "partial_position",
     "avoid_condition": "",
     "core_argument": "",

@@ -1,6 +1,6 @@
 # Long-Horizon Investing Plugin
 
-A Claude Code plugin for medium-to-long-term equity research (3/5/10-year horizons). Analyzes a single ticker using a 4-stage parallel subagent pipeline and produces an **Initiate / Add / Hold / Trim / Avoid** verdict backed by kill-criteria.
+A Claude Code plugin for medium-to-long-term equity research (3/5/10-year horizons). Analyzes a single ticker using a multi-stage parallel subagent pipeline — with independent citation fact-checking and an adversarial red-team challenge to the verdict — and produces a calibrated, confidence-weighted **Initiate / Add / Hold / Trim / Avoid** verdict backed by kill-criteria.
 
 **This is a research opinion tool. It never executes trades, connects to a broker, or manages a portfolio.**
 
@@ -30,11 +30,13 @@ MCP servers (`edgar-mcp`, `yfinance-mcp`, `fred-mcp`) are declared in `.mcp.json
 
 Results are written to `research/{TICKER}/` (gitignored):
 - `fundamentals.json`, `moat.json`, `valuation.json`, `macro.json`, `insider.json` — analyst envelopes
-- `bull.json`, `bear.json` — researcher arguments
+- `factcheck.json` — independent re-verification of the analysts' highest-impact citations
+- `bull.json`, `bear.json` — researcher arguments (each steelmans the other side first)
 - `risk_aggressive.json`, `risk_conservative.json`, `risk_neutral.json` — risk debate
-- `verdict.json` — structured verdict with kill-criteria
+- `challenge.json` — red-team pre-mortem and bias flags against the first-pass verdict
+- `verdict.json` — calibrated, confidence-weighted verdict with kill-criteria, `p_thesis_wrong`, and the challenge response
 - `report.md` — human-readable research note
-- `history.md` — append-only run log
+- `history.md` — append-only run log (feeds prior-call calibration on the next run)
 
 See `samples/COST/` for a worked example.
 
@@ -42,11 +44,16 @@ See `samples/COST/` for a worked example.
 
 ```
 /analyze TICKER
-  Stage 1 (parallel): 5 analyst subagents → research/{T}/*.json
-  Stage 2 (parallel): bull + bear researchers → bull.json, bear.json
-  Stage 3 (parallel): 3 risk debators → risk_*.json
-  Stage 4 (sequential): synthesizer → verdict.json + report.md
+  Stage 1   (parallel):   5 analyst subagents      → research/{T}/*.json
+  Stage 1.5 (sequential): fact-checker             → factcheck.json
+  Stage 2   (parallel):   bull + bear researchers  → bull.json, bear.json
+  Stage 3   (parallel):   3 risk debators          → risk_*.json
+  Stage 4   (sequential): synthesizer (first pass) → verdict.json + report.md
+  Stage 5   (sequential): verdict-challenger        → challenge.json
+  Stage 6   (sequential): synthesizer (revision)   → revised verdict.json + report.md
 ```
+
+**Bias controls:** bull/bear and aggressive/conservative agents must steelman the opposing side before rebutting; the synthesizer adjudicates arguments one-by-one (not winner-take-all), caps conviction at the confidence of the data it rests on, states an explicit probability the thesis is wrong, and must survive an independent red-team challenge before the verdict is final.
 
 ## Data sources
 

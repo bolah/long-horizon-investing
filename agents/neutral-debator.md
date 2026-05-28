@@ -17,9 +17,12 @@ research/$TICKER/moat.json
 research/$TICKER/valuation.json
 research/$TICKER/macro.json
 research/$TICKER/insider.json
+research/$TICKER/factcheck.json
 research/$TICKER/bull.json
 research/$TICKER/bear.json
 ```
+
+Do not build any condition on a claim listed in `factcheck.json` → `claims_to_exclude_or_downweight`.
 
 ## Your mandate
 

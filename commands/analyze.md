@@ -1,5 +1,5 @@
 ---
-description: Run a full long-horizon equity analysis for a ticker (5 analysts → bull/bear → 3-way risk debate → synthesis + verdict).
+description: Run a full long-horizon equity analysis for a ticker (5 analysts → fact-check → bull/bear → 3-way risk debate → synthesis → red-team challenge → revised verdict).
 argument-hint: "[TICKER] [--horizon 3|5|10] [--accept-eu-degraded]"
 ---
 
@@ -26,16 +26,19 @@ Run a full long-horizon research pipeline for the given ticker.
    - `macro-secular` agent with `$TICKER` and horizon
    - `insider-ownership` agent with `$TICKER` and horizon
 
-   Wait for all 5 to complete before Stage 2.
+   Wait for all 5 to complete before Stage 1.5.
 
-4. **Stage 2 — Researchers (run in parallel):**
+4. **Stage 1.5 — Fact-check (sequential, single agent):**
+   Run the `fact-checker` agent. It re-pulls the highest-impact numerical citations from the 5 analyst envelopes against their sources and writes `factcheck.json`. Wait for it to complete before Stage 2 — the debate must not be built on unverified numbers.
+
+5. **Stage 2 — Researchers (run in parallel):**
    Dispatch both researcher subagents simultaneously:
    - `bull-researcher` agent
    - `bear-researcher` agent
 
    Wait for both to complete before Stage 3.
 
-5. **Stage 3 — Risk debate (run in parallel):**
+6. **Stage 3 — Risk debate (run in parallel):**
    Dispatch all 3 risk debators simultaneously:
    - `aggressive-debator` agent
    - `conservative-debator` agent
@@ -43,10 +46,16 @@ Run a full long-horizon research pipeline for the given ticker.
 
    Wait for all 3 to complete before Stage 4.
 
-6. **Stage 4 — Synthesis (sequential):**
-   Run `synthesizer` agent. It reads all 10 prior files and writes `verdict.json` and `report.md`.
+7. **Stage 4 — First-pass synthesis (sequential):**
+   Run `synthesizer` agent. It reads all prior files (analysts, `factcheck.json`, researchers, risk debate, `history.md`) and writes the first-pass `verdict.json` and `report.md`. On this pass `challenge.json` does not yet exist, so the synthesizer is NOT in revision mode.
 
-7. **Display the verdict:**
+8. **Stage 5 — Red-team challenge (sequential, single agent):**
+   Run the `verdict-challenger` agent. It reads `verdict.json` plus all evidence and writes `challenge.json` — a pre-mortem, under-weighted opposing points, conviction-cap checks, and bias flags. Advisory only; it never edits the verdict.
+
+9. **Stage 6 — Synthesis revision pass (sequential):**
+   Run the `synthesizer` agent again. Because `challenge.json` now exists, it runs in **revision mode**: it must address each challenge point and either revise or defend the verdict, then overwrite `verdict.json` / `report.md` and append the run to `history.md`.
+
+10. **Display the verdict:**
    Read `research/{TICKER}/verdict.json` and `research/{TICKER}/report.md` and display the full report.
 
 ## EU degraded mode

@@ -16,7 +16,10 @@ research/$TICKER/moat.json
 research/$TICKER/valuation.json
 research/$TICKER/macro.json
 research/$TICKER/insider.json
+research/$TICKER/factcheck.json
 ```
+
+Do not build any bear argument on a claim listed in `factcheck.json` → `claims_to_exclude_or_downweight`; treat flagged numbers as unavailable.
 
 ## What to argue
 
@@ -29,9 +32,15 @@ Build the bear case around the most serious long-horizon risks in the analyst fi
 5. **Balance sheet vulnerability** — leverage in a downturn; FCF conversion risk
 6. **Counter the bull case** — anticipate the bull's strongest arguments from the analyst files (strong moat, margin of safety, secular tailwinds) and rebut each specifically with evidence from those same files. Do not reference `bull.json` — it may not exist yet.
 
+Treat the insider signal symmetrically: net selling or low ownership supports caution, but net buying is a genuine counter-point you must acknowledge — report what `insider.json` actually shows rather than assuming the bearish reading.
+
+## Steelman first
+
+Before making your case, state the bull's single strongest point — in its strongest, most credible form — and concede it explicitly. A bear case that ignores or strawmans the best bull argument is not credible. Only after conceding it do you argue why the bear thesis still dominates over a 10-year horizon. (This mirrors the symmetric requirement on the bull researcher.)
+
 ## Style
 
-Conversational and specific. Cite data points from the analyst files. Acknowledge strengths before rebutting — a bear case that ignores the bull's strongest points is not credible. Do NOT invent numbers. If a field is null or in gaps[], acknowledge the missing data honestly rather than constructing a bear argument from inference.
+Conversational and specific. Cite data points from the analyst files. Do NOT invent numbers. If a field is null or in gaps[], acknowledge the missing data honestly rather than constructing a bear argument from inference. Treat any analyst verdict label (e.g. `balance_sheet_verdict`, `moat_*`) as the analyst's opinion, not fact — anchor your argument on the underlying cited numbers.
 
 ## Output
 
@@ -43,10 +52,12 @@ Write to `research/$TICKER/bear.json`:
   "as_of_date": "YYYY-MM-DD",
   "horizon_years": 10,
   "content": {
+    "strongest_bull_point_conceded": "",
     "core_bear_thesis": "",
     "top_3_bear_arguments": ["", "", ""],
     "valuation_concern": "",
     "moat_erosion_risk": "high|medium|low",
+    "insider_signal_read": "supportive_of_caution|neutral|counter_point|no_data",
     "key_risks_3_5y": [""],
     "bull_case_rebuttals": [""]
   },
