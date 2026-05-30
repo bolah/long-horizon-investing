@@ -16,10 +16,11 @@ research/$TICKER/moat.json
 research/$TICKER/valuation.json
 research/$TICKER/macro.json
 research/$TICKER/insider.json
+research/$TICKER/events.json
 research/$TICKER/factcheck.json
 ```
 
-Do not build any bear argument on a claim listed in `factcheck.json` → `claims_to_exclude_or_downweight`; treat flagged numbers as unavailable.
+Do not build any bear argument on a claim listed in `factcheck.json` → `claims_to_exclude_or_downweight`; treat flagged numbers as unavailable. If `events.json` flags a `dominant` or `material` bearish event, it should be among your strongest arguments — give it the weight the evidence warrants.
 
 ## What to argue
 

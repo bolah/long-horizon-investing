@@ -1,6 +1,6 @@
 {
   "name": "long-horizon-investing",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Long-horizon equity research: 3/5/10-year Initiate/Add/Hold/Trim/Avoid verdicts with kill-criteria. US-first, EU degraded mode.",
   "author": {
     "name": "Bence Olah"

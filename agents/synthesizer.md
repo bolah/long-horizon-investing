@@ -21,6 +21,7 @@ research/$TICKER/valuation.json
 research/$TICKER/macro.json
 research/$TICKER/insider.json
 research/$TICKER/transcripts.json      # earnings call transcript analysis (Stage 1); check management_credibility_score
+research/$TICKER/events.json           # recent material events (Stage 1); check most_material_impact — a "dominant" event is a hard gate
 research/$TICKER/factcheck.json        # citation fact-check (Stage 1.5); may flag claims to exclude/down-weight
 research/$TICKER/bull.json
 research/$TICKER/bear.json
@@ -50,6 +51,8 @@ If `factcheck.json` flags a claim as a mismatch or unverifiable, exclude it or d
 - Transcript credibility gate: if `transcripts.json` is present and `management_credibility_score ≤ 4`, conviction is soft-capped at 7 regardless of other signals. Record in `dissent_summary`: "Management credibility score [N]/10 soft-caps conviction at 7 — guidance accuracy and/or tone consistency was weak across recent calls."
 - If `transcripts.json` contains any `forward_looking_events` with `magnitude: "material"`, surface them explicitly in `report.md` under a "Management Forward Guidance" section between Macro & Secular Context and Key Risks.
 - If `transcripts.json` contains non-empty `red_flags`, include them in the Key Risks section of `report.md`.
+- **Dominant-event gate (hard rule):** if `events.json` has `most_material_impact: "dominant"` (or any event with `thesis_impact: "dominant"`), the verdict MUST engage that event explicitly in `thesis` and `key_risks`, and conviction is hard-capped at 4 and `Initiate`/`Add` is blocked **unless** the analyst envelopes (or the bull/bear debate) demonstrably quantify and price the event. A verdict that does not name a `dominant` event is invalid — you are reasoning on a stale picture. When the gate blocks Initiate/Add, set the verdict to `Hold`/`Avoid` and record in `dissent_summary`: "Dominant event gate: [event] is unpriced in the analyst data; verdict capped pending quantification." Add a "Recent Events" section to `report.md` directly under Verdict whenever any event is `dominant` or `material`.
+- If `events.json` shows `unexplained_price_move: true`, treat the valuation margin-of-safety as suspect (the market may know something the cached data doesn't) and say so in the Valuation section.
 
 ## What to produce
 
@@ -83,11 +86,15 @@ Write 3–6 kill-criteria from the neutral-debator's candidates + your own synth
 ### 4. Dissent summary
 One paragraph: what did the bear and/or conservative argue that you overrode, and why you did so? This makes the verdict intellectually honest.
 
+### 5. Decisive unknowns (required — what would flip this)
+List 1–3 `decisive_unknowns`: the specific facts that are **not yet public or not yet in the data** and that would change the verdict if known. Be concrete — name the figure or event you'd need (e.g. "mainland revenue share vs. the 10% asset share", "whether 2026 guidance survives the next call"), not vague hedges. A verdict that claims to know everything is miscalibrated: if you genuinely cannot find a hinge unknown, say why the picture is unusually complete. Each unknown names the verdict change it would trigger. Honesty about what you don't know is worth more than a confident number you had to invent.
+
 ## Revision mode (only when `challenge.json` exists)
 
 `challenge.json` is written by the `verdict-challenger` agent AFTER your first-pass verdict. When it exists, you are running a **second, revision pass** over your own verdict — read it and treat it as a serious red-team, not a formality:
 
-- Address **each** point in `challenge.json` (`premortem_most_likely_cause`, `underweighted_opposing_point`, `conviction_cap_violation`, `bias_flags`).
+- Address **each** point in `challenge.json` (`premortem_most_likely_cause`, `missing_fact_check`, `underweighted_opposing_point`, `conviction_cap_violation`, `bias_flags`).
+- If `missing_fact_check.is_fatal` is true, you must revise — the verdict omitted a material known fact. Engage the fact, apply the dominant-event gate if applicable, and do not defend the omission.
 - For each: either **revise** the verdict (change verdict label, lower conviction, raise `p_thesis_wrong`, add a kill-criterion) and note what changed, OR **defend** it with specific cited reasoning if you disagree.
 - If the challenger found a conviction-cap violation, you must fix it — the cap is a hard rule from `calibration-discipline`.
 - Record your response in `challenge_response` (one short paragraph) and reflect any changes in the rest of `verdict.json`. The revised verdict replaces the first-pass file.
@@ -125,6 +132,10 @@ Write to `research/$TICKER/verdict.json`:
     }
   ],
   "key_risks": [],
+  "decisive_unknowns": [
+    {"unknown": "", "why_it_matters": "", "verdict_change_if_known": ""}
+  ],
+  "dominant_event_gate": {"dominant_event_present": false, "event": "", "priced_in_analyst_data": false, "conviction_capped": false},
   "citations": [],
   "confidence_gates_passed": {
     "floor_7_for_initiate_add": false,
@@ -151,6 +162,10 @@ Write to `research/$TICKER/report.md`. Structure:
 ## Verdict
 
 [2-3 sentences stating the verdict, conviction, and core reason]
+
+## Recent Events
+
+[Include this section only if events.json has any `dominant` or `material` event. List each with date, what happened, and its effect on the thesis. If a `dominant` event triggered the conviction cap, state that here. Omit the section entirely if no material events.]
 
 ## Core Thesis
 
@@ -183,6 +198,10 @@ Write to `research/$TICKER/report.md`. Structure:
 ## Dissent
 
 [What the bear/conservative argued that was overridden and why]
+
+## Decisive Unknowns
+
+[The 1–3 not-yet-public facts that would change this verdict, each with the change it would trigger. This is the honest "what I don't know" section — never omit it.]
 
 ## Red-Team Challenge
 

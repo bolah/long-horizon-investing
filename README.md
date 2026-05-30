@@ -44,7 +44,7 @@ See `samples/COST/` for a worked example.
 
 ```
 /analyze TICKER
-  Stage 1   (parallel):   5 analyst subagents      → research/{T}/*.json
+  Stage 1   (parallel):   7 analyst subagents      → research/{T}/*.json
   Stage 1.5 (sequential): fact-checker             → factcheck.json
   Stage 2   (parallel):   bull + bear researchers  → bull.json, bear.json
   Stage 3   (parallel):   3 risk debators          → risk_*.json

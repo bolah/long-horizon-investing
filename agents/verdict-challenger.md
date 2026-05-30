@@ -20,6 +20,7 @@ research/$TICKER/moat.json
 research/$TICKER/valuation.json
 research/$TICKER/macro.json
 research/$TICKER/insider.json
+research/$TICKER/events.json
 research/$TICKER/factcheck.json
 research/$TICKER/bull.json
 research/$TICKER/bear.json
@@ -32,15 +33,21 @@ research/$TICKER/risk_neutral.json
 
 1. **Pre-mortem (the core move)** — Assume it is `horizon_years` from now and this verdict has proven materially wrong. Tell the story: what is the single most likely cause? Ground it in a specific risk the analyst/bear files actually raised — not a generic "the market fell."
 
-2. **Under-weighted opposing point** — Find the strongest bear argument (if the verdict leans bullish) or strongest bull argument (if bearish/Avoid) that the synthesizer's `argument_ledger` rejected or skipped, and argue it deserved more weight. Quote the cited evidence.
+2. **Missing-fact check (do this before anything else)** — A verdict can be perfectly self-consistent and still wrong because it omits a known fact. Cross-check the verdict against `events.json` and `factcheck.json`:
+   - Does `events.json` flag a `dominant` or `material` event, or `unexplained_price_move: true`? If so, does `verdict.json` (`thesis`, `key_risks`, `dominant_event_gate`) actually engage it? An unengaged `dominant` event is a **fatal** flaw — set `overall: "verdict needs revision"` and make it the lead `recommended_change`.
+   - Did `factcheck.json` raise `stale_data_flag: true`? If the verdict ignores it, flag that too.
+   - Independently of the files: does the verdict's narrative explain the *current price*? If the stock has clearly moved and the thesis treats the price as a free "discount" without a cause, name that gap.
 
-3. **Conviction-cap violation** — Recompute the confidence-weighting cap from `calibration-discipline`: is `conviction` actually ≤ the minimum `confidence` of the load-bearing envelopes? Is `conviction` consistent with `p_thesis_wrong`? Flag any violation with the numbers.
+3. **Under-weighted opposing point** — Find the strongest bear argument (if the verdict leans bullish) or strongest bull argument (if bearish/Avoid) that the synthesizer's `argument_ledger` rejected or skipped, and argue it deserved more weight. Quote the cited evidence.
 
-4. **Bias flags** — Check for the standard failure modes and flag any present, with evidence:
+4. **Conviction-cap violation** — Recompute the confidence-weighting cap from `calibration-discipline`: is `conviction` actually ≤ the minimum `confidence` of the load-bearing envelopes? Is `conviction` consistent with `p_thesis_wrong`? Flag any violation with the numbers.
+
+5. **Bias flags** — Check for the standard failure modes and flag any present, with evidence:
    - *Optimism*: conviction or thesis leans on the bull narrative more than the cited data supports.
    - *Recency / narrative*: macro or moat reasoning rests on recent results or current sentiment rather than durable structural evidence.
    - *Hold-as-hedge*: a Hold that doesn't articulate both why-not-Initiate and why-not-Avoid.
    - *Fact-check ignored*: a `factcheck.json`-flagged claim still supports the verdict.
+   - *Stale picture*: the verdict reasons on cached fundamentals while `events.json`/`factcheck.json` show a material event or stale-data flag it never engages.
 
 ## Style
 
@@ -57,10 +64,11 @@ Write to `research/$TICKER/challenge.json`:
   "horizon_years": 10,
   "content": {
     "premortem_most_likely_cause": "",
+    "missing_fact_check": {"omitted_material_fact": false, "fact": "", "source_file": "", "is_fatal": false},
     "underweighted_opposing_point": {"point": "", "cited_evidence": "", "why_it_matters": ""},
     "conviction_cap_violation": {"violation": true, "detail": ""},
     "calibration_check": {"conviction": 0, "p_thesis_wrong": 0.0, "consistent": true, "note": ""},
-    "bias_flags": [{"type": "optimism|recency|hold_as_hedge|factcheck_ignored", "evidence": ""}],
+    "bias_flags": [{"type": "optimism|recency|hold_as_hedge|factcheck_ignored|stale_picture", "evidence": ""}],
     "overall": "verdict appears sound | verdict needs revision",
     "recommended_changes": [""]
   },

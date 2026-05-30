@@ -32,7 +32,7 @@ The three MCP servers (`edgar-mcp`, `yfinance-mcp`, `fred-mcp`) are declared in 
 `/analyze` (`commands/analyze.md`) is the orchestrator. It dispatches subagents via the Agent tool in staged fan-out/fan-in — **each stage must fully complete before the next starts**:
 
 ```
-Stage 1   (6 parallel)  fundamentals, moat, valuation, macro-secular, insider-ownership, earnings-transcript
+Stage 1   (7 parallel)  fundamentals, moat, valuation, macro-secular, insider-ownership, earnings-transcript, recent-events
 Stage 1.5 (1 seq)       fact-checker → factcheck.json
 Stage 2   (2 parallel)  bull-researcher, bear-researcher
 Stage 3   (3 parallel)  aggressive-, conservative-, neutral-debator
@@ -41,7 +41,7 @@ Stage 5   (1 sequential) verdict-challenger → challenge.json
 Stage 6   (1 sequential) synthesizer revision pass → verdict.json + report.md (final)
 ```
 
-Agents **do not call each other**. They communicate only through JSON files in `research/{TICKER}/`. Each Stage-N agent reads the files written by Stage-(N-1) and appends its own. This file-passing contract is the backbone — when adding or reordering an agent, update both `commands/analyze.md` (dispatch + wait points) and the downstream agent's "Read all these files" list. The `synthesizer` reads all 11 prior files (including `transcripts.json`); `commands/debate-only.md` and `revisit.md` depend on the Stage-1 JSON already existing.
+Agents **do not call each other**. They communicate only through JSON files in `research/{TICKER}/`. Each Stage-N agent reads the files written by Stage-(N-1) and appends its own. This file-passing contract is the backbone — when adding or reordering an agent, update both `commands/analyze.md` (dispatch + wait points) and the downstream agent's "Read all these files" list. The `synthesizer` reads all 12 prior files (including `transcripts.json` and `events.json`); `commands/debate-only.md` and `revisit.md` depend on the Stage-1 JSON already existing. **A `dominant`-impact event in `events.json` is a hard gate on the synthesizer's verdict** — see `agents/synthesizer.md` "Dominant-event gate".
 
 The plugin manifest **`.claude-plugin/plugin.json` in the InvestAgents copy lists every command/agent/skill explicitly — but in THIS repo it is minimal** (name/version/author only); commands, agents, and skills are discovered by directory convention (`commands/`, `agents/`, `skills/`). Keep that in mind: adding a file here is enough to register it.
 

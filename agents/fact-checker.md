@@ -15,7 +15,22 @@ research/$TICKER/moat.json
 research/$TICKER/valuation.json
 research/$TICKER/macro.json
 research/$TICKER/insider.json
+research/$TICKER/events.json
 ```
+
+## Freshness check (do this first)
+
+Before checking individual numbers, confirm the analyst data is not stale:
+1. Pull the **current price** and the trailing ~30-day price action from yfinance.
+2. Pull the **most recent filing date** for $TICKER from EDGAR (`get_filings`, newest first — include 8-K/6-K).
+3. Cross-reference `events.json`: is there a `dominant`/`material` event, or an `unexplained_price_move`?
+
+Raise a `stale_data` flag (severity `high`) if any of these is true and the analyst envelopes do not reference it:
+- a single-day or short-window price move greater than ~15% that no envelope explains,
+- an EDGAR filing in the last ~30 days that no envelope cites,
+- a `dominant` event in `events.json` that the valuation/fundamentals envelopes ignore.
+
+A stale-data flag tells the synthesizer the cached fundamentals may describe a company that no longer exists as modeled — it is the single most important thing you can catch. Do not skip this to save calls.
 
 ## What to verify
 
@@ -70,6 +85,13 @@ Write to `research/$TICKER/factcheck.json`:
         "note": ""
       }
     ],
+    "freshness": {
+      "current_price": null,
+      "max_30d_move_pct": null,
+      "latest_filing_date": "YYYY-MM-DD",
+      "stale_data_flag": false,
+      "stale_data_detail": ""
+    },
     "summary": {
       "checked": 0, "verified": 0, "mismatch": 0, "unverifiable": 0, "uncited": 0,
       "high_severity_flags": 0

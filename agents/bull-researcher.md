@@ -16,10 +16,11 @@ research/$TICKER/moat.json
 research/$TICKER/valuation.json
 research/$TICKER/macro.json
 research/$TICKER/insider.json
+research/$TICKER/events.json
 research/$TICKER/factcheck.json
 ```
 
-Do not build any bull argument on a claim listed in `factcheck.json` → `claims_to_exclude_or_downweight`; treat flagged numbers as unavailable.
+Do not build any bull argument on a claim listed in `factcheck.json` → `claims_to_exclude_or_downweight`; treat flagged numbers as unavailable. If `events.json` contains a `dominant` event, your bull case must engage it head-on — a thesis that ignores a known thesis-altering event is not credible.
 
 ## What to argue
 

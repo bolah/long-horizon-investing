@@ -19,15 +19,16 @@ Run a full long-horizon research pipeline for the given ticker.
 2. Create the output directory: `research/{TICKER}/`
 
 3. **Stage 1 — Analysts (run in parallel):**
-   Dispatch all 6 analyst subagents simultaneously using the Agent tool:
+   Dispatch all 7 analyst subagents simultaneously using the Agent tool:
    - `fundamentals` agent with `$TICKER` and horizon
    - `moat` agent with `$TICKER` and horizon
    - `valuation` agent with `$TICKER` and horizon
    - `macro-secular` agent with `$TICKER` and horizon
    - `insider-ownership` agent with `$TICKER` and horizon
    - `earnings-transcript` agent with `$TICKER` and horizon
+   - `recent-events` agent with `$TICKER` and horizon
 
-   Wait for all 6 to complete before Stage 1.5.
+   Wait for all 7 to complete before Stage 1.5.
 
 4. **Stage 1.5 — Fact-check (sequential, single agent):**
    Run the `fact-checker` agent. It re-pulls the highest-impact numerical citations from the 5 analyst envelopes against their sources and writes `factcheck.json`. Wait for it to complete before Stage 2 — the debate must not be built on unverified numbers.
@@ -48,7 +49,7 @@ Run a full long-horizon research pipeline for the given ticker.
    Wait for all 3 to complete before Stage 4.
 
 7. **Stage 4 — First-pass synthesis (sequential):**
-   Run `synthesizer` agent. It reads all prior files (analysts, `factcheck.json`, researchers, risk debate, `history.md`) and writes the first-pass `verdict.json` and `report.md`. On this pass `challenge.json` does not yet exist, so the synthesizer is NOT in revision mode.
+   Run `synthesizer` agent. It reads all prior files (analysts including `events.json`, `factcheck.json`, researchers, risk debate, `history.md`) and writes the first-pass `verdict.json` and `report.md`. On this pass `challenge.json` does not yet exist, so the synthesizer is NOT in revision mode.
 
 8. **Stage 5 — Red-team challenge (sequential, single agent):**
    Run the `verdict-challenger` agent. It reads `verdict.json` plus all evidence and writes `challenge.json` — a pre-mortem, under-weighted opposing points, conviction-cap checks, and bias flags. Advisory only; it never edits the verdict.
